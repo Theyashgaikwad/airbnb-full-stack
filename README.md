@@ -1,10 +1,10 @@
-# Airbnb clone (fullstack project) Spring boot 3, Angular 17, PrimeNG, H2/PostgreSQL, JWT Authentication (2024) (Backend)
+# Airbnb clone (fullstack project) Spring boot 3, Angular 17, PrimeNG, H2/PostgreSQL, JWT Authentication (2024) (Frontend)
 
-Spring boot backend of the airbnb clone
+Angular frontend of the airbnb clone
 
 [Video tutorial](https://youtu.be/XriUV06Hkow)
 
-[Angular Frontend](https://github.com/C0de-cake/airbnb-clone-frontend)
+[Spring boot Backend](https://github.com/C0de-cake/airbnb-clone-backend)
 
 ### Key Features:
 - 📅 Booking management for travelers
@@ -12,95 +12,135 @@ Spring boot backend of the airbnb clone
 - 🔍 Search for houses by criteria (location, date, guests, beds, etc)
 - 🔐 Authentication and Authorization (Role management) with JWT
 - 🏢 Domain-driven design
-- 💾 H2 in-memory database for development (PostgreSQL for production)
+- 🎨 PrimeNG UI components
 
 ## Architecture Changes (JWT Migration)
-- ✅ Migrated from OAuth2/Auth0 to JWT-based authentication
-- ✅ Replaced PostgreSQL with H2 for development
-- ✅ Role-based access control (ROLE_TENANT, ROLE_LANDLORD)
-- ✅ Stateless session management
+- ✅ Migrated from OAuth0 to JWT-based authentication
+- ✅ Updated API calls to use JWT Bearer tokens
+- ✅ Token stored in browser storage
+- ✅ Automatic token refresh on expiration (24 hours)
 
 ## Usage
 ### Prerequisites
-- [JDK 21](https://adoptium.net/temurin/releases/)
-- [Maven](https://maven.apache.org/download.cgi) or use bundled mvnw
+- [NodeJS 20.11+ LTS](https://nodejs.org/)
+- [Angular CLI v17](https://www.npmjs.com/package/@angular/cli)
 - IDE ([VSCode](https://code.visualstudio.com/download), [IntelliJ](https://www.jetbrains.com/idea/download/))
-- [PostgreSQL](https://www.postgresql.org/download/) - For production only
 
-### Clone the repository
+### Installation
+
+#### Clone the repository
 ```bash
-git clone https://github.com/C0de-cake/airbnb-clone-back
-cd airbnb-clone-back
+git clone https://github.com/C0de-cake/airbnb-clone-frontend
+cd airbnb-clone-frontend
 ```
 
-### Launch
-
-#### Quick Start (Development with H2)
+#### Install Angular CLI (if not already installed)
 ```bash
-# Using Maven wrapper
+npm install -g @angular/cli@17
+```
+
+#### Fetch dependencies
+```bash
+npm install
+```
+
+### Configuration
+
+Update backend URL in these files:
+
+**File: `src/environments/environment.development.ts`**
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8080'
+};
+```
+
+**File: `src/environments/environment.ts`**
+```typescript
+export const environment = {
+  production: true,
+  apiUrl: 'http://localhost:8080'  // Change to your production backend URL
+};
+```
+
+### Launch dev server
+```bash
+ng serve
+
+# Or with auto-open browser
+ng serve --open
+
+# Or use npm script
+npm start
+```
+
+Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+
+### Build
+```bash
+ng build
+```
+
+The build artifacts will be stored in the `dist/` directory.
+
+### Build for Production
+```bash
+ng build --configuration production
+```
+
+### API Authentication
+
+The frontend automatically:
+1. Sends JWT token in `Authorization: Bearer <token>` header
+2. Handles token storage after login
+3. Validates token expiration
+4. Redirects to login if token is invalid
+
+#### Authentication Flow
+1. User registers with email/password
+2. Backend returns JWT token
+3. Token is stored in browser storage
+4. Token is sent with every API request
+5. Token is validated on each request
+6. Expired token → auto-redirect to login
+
+### Available Routes
+- `/` - Home page (public)
+- `/login` - Login page
+- `/register` - Registration page
+- `/tenant/listings` - Browse listings (authenticated)
+- `/tenant/search` - Search listings (authenticated)
+- `/tenant/bookings` - View bookings (authenticated)
+- `/landlord/properties` - Landlord properties (authenticated)
+- `/landlord/reservations` - Landlord reservations (authenticated)
+
+### Running Both Frontend and Backend
+
+**Option 1: Two Terminal Windows**
+
+Terminal 1 - Backend:
+```bash
+cd airbnb-clone-backend
 ./mvnw spring-boot:run
-
-# Or on Windows
-mvnw.cmd spring-boot:run
 ```
 
-The application will start on `http://localhost:8080`
-
-#### With Custom JWT Settings
+Terminal 2 - Frontend:
 ```bash
-./mvnw spring-boot:run -Dspring-boot.run.arguments="--application.jwt.secret-key=your-secret-key --application.jwt.expiration=86400000"
+cd airbnb-clone-frontend
+npm install  # First time only
+ng serve --open
 ```
 
-#### IntelliJ
-1. Open project in IntelliJ
-2. Find `AirbnbCloneBackApplication.java` in `src/main/java`
-3. Right-click → Run
+**Option 2: Using npm concurrently**
 
-#### Production with PostgreSQL
+From root folder:
 ```bash
-./mvnw spring-boot:run -Dspring.profiles.active=prod \
-  -Dspring-boot.run.arguments="--POSTGRES_USER=username --POSTGRES_PASSWORD=password --POSTGRES_URL=localhost --POSTGRES_DB=airbnb_clone"
+npm run dev  # If script is configured
 ```
 
-### API Documentation
-
-#### Authentication Endpoints
-- `POST /api/auth/register` - Create new account
-- `POST /api/auth/login` - Login and get JWT token
-- `GET /api/auth/get-authenticated-user` - Get current user info
-- `POST /api/auth/logout` - Logout
-
-#### Example: Register User
-```bash
-curl -X POST http://localhost:8080/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "john@example.com",
-    "password": "password123"
-  }'
-```
-
-#### Example: Login
-```bash
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "john@example.com",
-    "password": "password123"
-  }'
-```
-
-### Database Access
-Access H2 console at: `http://localhost:8080/h2-console`
-- JDBC URL: `jdbc:h2:mem:testdb`
-- Username: `sa`
-- Password: (leave empty)
-
-### Documentation Files
-- `JWT_MIGRATION_GUIDE.md` - Detailed migration from OAuth2 to JWT
-- `JWT_TESTING_GUIDE.md` - API testing examples
-- `VERIFICATION_CHECKLIST.md` - Implementation checklist
-- `SETUP_AND_RUN_INSTRUCTIONS.md` - Complete setup guide for full stack
+### Documentation
+- See `../airbnb-clone-backend/SETUP_AND_RUN_INSTRUCTIONS.md` for complete full-stack setup
+- See `../airbnb-clone-backend/JWT_TESTING_GUIDE.md` for API testing examples
+- See `../airbnb-clone-backend/JWT_MIGRATION_GUIDE.md` for technical details
 
