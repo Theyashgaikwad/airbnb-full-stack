@@ -1,0 +1,13 @@
+services: {}
+# PostgreSQL has been removed and replaced with H2 in-memory database
+# To use PostgreSQL in production, uncomment the following:
+# services:
+#   postgres:
+#     image: 'postgres:latest'
+#     volumes:
+#       - ~/volumes/codecake/postgresql/:/var/lib/postgresql/data
+#     environment:
+#       - POSTGRES_PASSWORD=codecake
+#       - POSTGRES_USER=codecake
+#     ports:
+#       - 127.0.0.1:5432:5432
